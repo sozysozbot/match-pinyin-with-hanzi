@@ -7,5 +7,10 @@ This crate resolves all that mess. With this crate, all you need is:
 
 ```rust
 use match_pinyin_with_hanzi::match_pinyin_with_hanzi;
-match_pinyin_with_hanzi("māmā qí mǎ, mǎ màn, māma mà mǎ.", "妈妈骑马，马慢，妈妈骂马。").unwrap();
+match_pinyin_with_hanzi(
+    "māmā qí mǎ, mǎ màn, māma mà mǎ.", 
+    "妈妈骑马，马慢，妈妈骂马。"
+).unwrap();
 ```
+
+Note that both `māmā` and `māma` are allowed to match with `妈妈`. This crate assumes that any syllable can lose its tone, so it is perfectly okay to match a toneless pinyin to the Chinese character.
