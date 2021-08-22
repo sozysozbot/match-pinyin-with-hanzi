@@ -10,7 +10,7 @@ mod tests {
 /// ```
 /// use match_pinyin_with_hanzi::match_pinyin_with_hanzi;
 /// match_pinyin_with_hanzi("māmā qí mǎ, mǎ màn, māma mà mǎ.", "妈妈骑马，马慢，妈妈骂马。").unwrap();
-/// 
+///
 /// // Erhua is also supported.
 /// // This sample sentence is taken from Wiktionary: https://en.wiktionary.org/w/index.php?title=%E4%B8%80%E9%BB%9E%E5%85%92&oldid=60782800
 /// match_pinyin_with_hanzi("Jiù wèi zhème yīdiǎnr shìr shēngqì, zhídàng de ma?", "就為這麼一點兒事兒生氣，值當的嗎？").unwrap();
@@ -22,7 +22,12 @@ pub fn match_pinyin_with_hanzi(pinyin_str: &str, hanzi_str: &str) -> Result<(), 
     let mut hanzi_iter = hanzi_str.chars();
     for pinyin in PinyinParser::strict(pinyin_str) {
         let (hanzi, candidates) = loop {
-            let hanzi = hanzi_iter.next().expect("hanzi ran out");
+            let hanzi = hanzi_iter.next().unwrap_or_else(|| {
+                panic!(
+                    "hanzi ran out, while matching `{}` with `{}`",
+                    pinyin_str, hanzi_str
+                )
+            });
 
             if let Some(multi) = hanzi.to_pinyin_multi() {
                 let mut candidates = vec![];
@@ -37,7 +42,12 @@ pub fn match_pinyin_with_hanzi(pinyin_str: &str, hanzi_str: &str) -> Result<(), 
         if pinyin.ends_with('r') && !["er", "ēr", "ér", "ěr", "èr"].contains(&&pinyin[..]) {
             // Erhua. Get the next Chinese character and verify that it is 儿 or 兒
             loop {
-                let expect_儿 = hanzi_iter.next().expect("hanzi ran out, expected 儿 or 兒");
+                let expect_儿 = hanzi_iter.next().unwrap_or_else(|| {
+                    panic!(
+                        "hanzi ran out, expected 儿 or 兒, while matching `{}` with `{}`",
+                        pinyin_str, hanzi_str
+                    )
+                });
                 if expect_儿.to_pinyin_multi().is_some() {
                     if "儿兒".contains(expect_儿) {
                         break;
